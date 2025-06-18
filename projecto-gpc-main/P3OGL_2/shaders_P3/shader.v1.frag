@@ -70,7 +70,15 @@ void main()
 
     N = normalize(norm);
 
-    outColor = vec4(shade(), 1.0);
+    // --- NIEBLA EXPONENCIAL CUADRÁTICA ---
+    // pendiente -> cambiar color de niebla?
+    float fogDensity = 0.045;
+    float fogDistance = length(cameraPos - pos);
+    float fogFactor = exp(-pow(fogDensity * fogDistance, 2.0));
+    fogFactor = clamp(fogFactor, 0.0, 1.0);
+    vec3 fogColor = vec3(0.7, 0.7, 0.7); // Gris claro
+    vec3 finalColor = mix(fogColor, shade(), fogFactor);
+    outColor = vec4(finalColor, 1.0);
 }
 
 vec3 shade()
