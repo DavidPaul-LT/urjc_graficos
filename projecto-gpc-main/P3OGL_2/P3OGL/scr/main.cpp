@@ -11,6 +11,8 @@
 #include <iostream>
 #include "MeshLoader.hpp"
 
+#include <glm/gtc/type_ptr.hpp>
+
 // Variables movimiento ratón
 float yaw = -90.0f;
 float pitch = 0.0f;
@@ -300,6 +302,8 @@ void renderFunc()
 		glm::mat4 localModel = glm::mat4(1.0f);
 		int cubeId = i + 1;  // Convertimos -1,0,1,2 a 0,1,2,3
 
+		// pendiente -> 
+
 		if (i == -1) {
 			// Cubo izquierdo: tamaño moderado y spline cúbico
 			//localModel = glm::translate(localModel, glm::vec3(i * 4.0f, sin(angle) * 0.5f, 0.0f)); Movimiento de oscilación en Y
@@ -344,6 +348,17 @@ void renderFunc()
 		}
 		else {
 			glUseProgram(program1.program);
+			// LUZ DIRECCIONAL
+			// pendiente -> Ahora mismo tiene giro, la dejamos así?
+			float angle = glutGet(GLUT_ELAPSED_TIME) / 428.0f;
+			glm::vec3 dirLightDir = glm::normalize(glm::vec3(sin(angle), -1.0f, cos(angle)));
+			glm::vec3 dirLightId = glm::vec3(1.0f, 0.7f, 0.4f);
+			glm::vec3 dirLightIs = glm::vec3(1.0f, 0.6f, 0.2f);
+
+			glUseProgram(program1.program);
+			glUniform3fv(glGetUniformLocation(program1.program, "dirLightDir"), 1, glm::value_ptr(dirLightDir));
+			glUniform3fv(glGetUniformLocation(program1.program, "dirLightId"), 1, glm::value_ptr(dirLightId));
+			glUniform3fv(glGetUniformLocation(program1.program, "dirLightIs"), 1, glm::value_ptr(dirLightIs));
 		}
 
 		// Enviar uniformes según el shader activo

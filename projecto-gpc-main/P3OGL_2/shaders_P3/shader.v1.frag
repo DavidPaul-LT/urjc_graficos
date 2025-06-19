@@ -14,6 +14,11 @@ uniform sampler2D colorTex;
 uniform sampler2D emiTex;
 uniform vec3 cameraPos;
 
+// propiedades de la luz direccional: componentes de dirección, difusa y especular
+uniform vec3 dirLightDir;
+uniform vec3 dirLightId;
+uniform vec3 dirLightIs;
+
 // Propiedades del objeto
 vec3 Ka;
 vec3 Kd;
@@ -34,10 +39,6 @@ vec3 Id[2] = vec3[2](vec3(0.8), vec3(0.5));  // Dos fuentes de luz difusa
 vec3 Is[2] = vec3[2](vec3(0.8), vec3(0.5));  // Dos fuentes de luz especular
 vec3 lpos[2] = vec3[2](vec3(2.0, 1.0, 2.0), vec3(-2.0, 1.0, 1.0));   // Posiciones de luces puntuales
 
-// Propiedades de la luz direccional
-vec3 dirLightDir = normalize(vec3(1.0f, 0.0f, 0.0f));  // Dirección de la luz direccional
-vec3 dirLightId = vec3(0.8);  // Intensidad de la luz difusa
-vec3 dirLightIs = vec3(0.8);  // Intensidad de la luz especular 
 
 //Densidad y color de la niebla
 float density = 0.05;
