@@ -13,6 +13,10 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
+#ifndef PI
+#define PI 3.14159265f
+#endif
+
 // Variables movimiento ratón
 float yaw = -90.0f;
 float pitch = 0.0f;
@@ -348,8 +352,8 @@ void renderFunc()
 	float deltaTime = (currentTime - lastTime) / 1000.0f;
 	static float angle = 0.0f;
 	angle += deltaTime * 1.0f;
-	if (angle > 2 * 3.141592f)
-		angle -= 2 * 3.141592f;
+	if (angle > 2 * PI)
+		angle -= 2 * PI;
 	lastTime = currentTime;
 
 	int uCubeId = glGetUniformLocation(program1.program, "cubeId");
@@ -358,8 +362,6 @@ void renderFunc()
 	for (int i = -1; i <= 2; ++i) {
 		glm::mat4 localModel = glm::mat4(1.0f);
 		int cubeId = i + 1;
-
-		// pendiente -> 
 
 		if (i == -1) {
 			float splineValue = 1 + sin(angle);
@@ -378,8 +380,22 @@ void renderFunc()
 			localModel = glm::translate(localModel, glm::vec3(splineValue - 5.f, y, 0.0f));
 		}
 		else if (i == 0) {
-			localModel = glm::translate(glm::mat4(1.0f), glm::vec3(-0.5f, 0.0f, 0.0f));
-			localModel = glm::rotate(localModel, angle, glm::vec3(1.0f, 1.0f, 0.0f));
+			// cubo rotativo que describe una elipse
+
+			// se considera esto para evitar que de un salto repentino en la traslación
+			float rawTime = glutGet(GLUT_ELAPSED_TIME) / 560.0f;
+			float angle = fmodf(rawTime, 2.0f * PI);
+
+			float radiusX = 5.0f;
+			float radiusZ = 3.0f;
+			float radiusY = 10.0f;
+
+			float x = radiusX * cos(angle);
+			float z = radiusZ * sin(angle);
+			float y = radiusY * cos(angle);
+			
+			localModel = glm::translate(glm::mat4(1.0f), glm::vec3(x, y, z));
+			localModel = glm::rotate(localModel, rawTime * 3.0f, glm::vec3(1.0f, 1.0f, 0.0f));
 		}
 		else if (i == 1) {
 			float radius = 4.0f;
@@ -428,11 +444,6 @@ void renderFunc()
 		}
 		else {
 			glUseProgram(program1.program);
-
-			// FUENTE DE LUZ DIRECCIONAL CON TRAYECTORIA CÍCLICA
-			// pendiente -> La linterna de FPS es muy intensa de cerca
-			// cambiar la velocidad de movimiento (que sea "suave"?)
-			
 			float angle = glutGet(GLUT_ELAPSED_TIME) / 428.0f;
 			glm::vec3 dirLightDir = glm::normalize(glm::vec3(sin(angle), -1.0f, cos(angle)));
 			glm::vec3 dirLightId = glm::vec3(1.0f, 0.7f, 0.4f);
@@ -470,7 +481,7 @@ void renderFunc()
 
 void shooterMov(unsigned char key, int x, int y)
 {
-	const float moveSpeed = 0.5f;
+	const float moveSpeed = 1.0f;
 	const float rotateAngle = glm::radians(5.0f);
 	glm::vec3 right = glm::normalize(glm::cross(lookAt, up));
 
