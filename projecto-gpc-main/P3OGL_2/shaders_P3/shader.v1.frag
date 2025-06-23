@@ -46,15 +46,7 @@ vec3 lpos[2] = vec3[2](vec3(2.0, 1.0, 2.0), vec3(-2.0, 1.0, 1.0));   // Posicion
 float density = 0.05;
 vec3 bg = vec3(0.2,0.2,0.2);
 
-vec3 generatePattern(vec2 uv) {
-    // Patrón más llamativo para el cubo central
-    float stripes = sin(uv.x * 20.0) * sin(uv.y * 20.0); // Aumenta la frecuencia del patrón (más detalles)
-    float r = sin(uv.x * 5.0 + uv.y * 3.0) * 0.5 + 0.5; // Franjas diagonales rojas
-    float g = cos(uv.y * 7.0 - uv.x * 2.0) * 0.5 + 0.5;  // Ondas verdes
-    float b = (sin(uv.x * 3.0) * cos(uv.y * 5.0)) * 0.5 + 0.5; // Patrón modular azul
-    return mix(vec3(r, g, b), vec3(stripes), 0.3); //  * 0.5 + 0.5: Transforma el rango de salida de salida -1 en algo que se pueda colorear
-}
-
+// función de círculo blanco en fondo negro
 vec3 proceduralCircle(vec2 uv) {
     float d = distance(uv, vec2(0.5));
     if (d < 0.2)
@@ -63,6 +55,7 @@ vec3 proceduralCircle(vec2 uv) {
         return vec3(0.0);  // negro fuera
 }
 
+// función de bandas coloreadas animadas
 vec3 movingStripes(vec2 uv, float time) {
     float bands = sin((uv.x + time) * 10.0) * 0.5 + 0.5;
     return vec3(bands, bands * 0.5, 1.0 - bands);
