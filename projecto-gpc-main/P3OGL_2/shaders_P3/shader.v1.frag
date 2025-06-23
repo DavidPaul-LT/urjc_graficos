@@ -129,6 +129,8 @@ vec3 shade()
     float f_win = pow(max(1.0 - pow(distanceToFocalLight / maxDistance, 4.0), 0.0), 2.0);
     float t = clamp((dot(-fragmentToLight,spotDir)-cos(radians(cutoff)))/(cos(radians(penumbra))-cos(radians(cutoff))),0,1);
     float attenuation = pow(d0 / (distanceToFocalLight + epsilon), 2.0) * f_win * t;
+    attenuation = min(attenuation, 1.0); // evita saturación
+    attenuation *= smoothstep(0.3, 1.0, distanceToFocalLight);
 
     float diff = max(dot(fragmentToLight, N), 0.0);
     vec3 diffuse = spotId * Kd * diff;

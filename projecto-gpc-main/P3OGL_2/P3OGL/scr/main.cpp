@@ -37,6 +37,10 @@ glm::vec3 COP = glm::vec3(0.0f, 0.0f, 6.0f);
 glm::vec3 lookAt = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 
+// Vectores de interpolación para un movimiento más suave
+glm::vec3 targetCOP = COP;
+glm::vec3 targetLookAt = lookAt;
+
 VirtualObject* vo = nullptr;
 VirtualObject* vo2 = nullptr;
 
@@ -334,6 +338,9 @@ void renderFunc()
 
 	glBindVertexArray(vao);
 
+	float smoothing = 0.1f;
+	COP = glm::mix(COP, targetCOP, smoothing);
+	lookAt = glm::mix(lookAt, targetLookAt, smoothing);
 	glm::mat4 viewMat = glm::lookAt(COP, COP + lookAt, up);
 
 	static int lastTime = 0;
@@ -468,12 +475,12 @@ void shooterMov(unsigned char key, int x, int y)
 	glm::vec3 right = glm::normalize(glm::cross(lookAt, up));
 
 	switch (key) {
-	case 'a': COP -= right * moveSpeed; break;
-	case 'w': COP += lookAt * moveSpeed; break;
-	case 's': COP -= lookAt * moveSpeed; break;
-	case 'd': COP += right * moveSpeed; break;
-	case 'q': lookAt = glm::mat3(glm::rotate(glm::mat4(1.0f), rotateAngle, up)) * lookAt; break;
-	case 'e': lookAt = glm::mat3(glm::rotate(glm::mat4(1.0f), -rotateAngle, up)) * lookAt; break;
+	case 'a': targetCOP -= right * moveSpeed; break;
+	case 'w': targetCOP += lookAt * moveSpeed; break;
+	case 's': targetCOP -= lookAt * moveSpeed; break;
+	case 'd': targetCOP += right * moveSpeed; break;
+	case 'q': targetLookAt = glm::mat3(glm::rotate(glm::mat4(1.0f), rotateAngle, up)) * targetLookAt; break;
+	case 'e': targetLookAt = glm::mat3(glm::rotate(glm::mat4(1.0f), -rotateAngle, up)) * targetLookAt; break;
 	}
 
 	lookAt = glm::normalize(lookAt);
@@ -508,11 +515,10 @@ void mouseMov(int x, int y) //EXTRA
 	if (pitch < -89.0f)
 		pitch = -89.0f;
 
-	glm::vec3 direction;
-	direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-	direction.y = sin(glm::radians(pitch));
-	direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-	lookAt = glm::normalize(direction);
+	targetLookAt.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+	targetLookAt.y = sin(glm::radians(pitch));
+	targetLookAt.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+	targetLookAt = glm::normalize(targetLookAt);
 
 	glutPostRedisplay();
 }
