@@ -1,7 +1,1 @@
-﻿cl : línea de comandos  warning D9035: La opción 'Gm' está desusada y se quitará en próximas versiones
-  main.cpp
-C:\Users\carhe\Desktop\Uni\4o\GRAFICOS\Práctica final\Práctica final\Proyecto\scr\main.cpp(510,16): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
-C:\Users\carhe\Desktop\Uni\4o\GRAFICOS\Práctica final\Práctica final\Proyecto\scr\main.cpp(511,16): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
-C:\Users\carhe\Desktop\Uni\4o\GRAFICOS\Práctica final\Práctica final\Proyecto\scr\main.cpp(517,15): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
-C:\Users\carhe\Desktop\Uni\4o\GRAFICOS\Práctica final\Práctica final\Proyecto\scr\main.cpp(518,15): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
-  P3OGL.vcxproj -> C:\Users\carhe\Desktop\Uni\4o\GRAFICOS\Práctica final\Práctica final\Proyecto\Debug\P3OGL.exe
+﻿

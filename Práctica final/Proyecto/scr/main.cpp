@@ -488,7 +488,7 @@ void renderFunc()
 void keyBoardMovement(unsigned char key, int x, int y)
 {
 	const float moveSpeed = 1.0f;
-	const float rotateAngle = glm::radians(5.0f);
+	const float rotateAngle = glm::radians(10.0f);
 	glm::vec3 right = glm::normalize(glm::cross(lookAt, up));
 
 	switch (key) {

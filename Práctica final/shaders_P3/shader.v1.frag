@@ -57,7 +57,7 @@ vec3 proceduralCircle(vec2 uv) {
         return vec3(0.0);  // negro fuera
 }
 
-// función de bandas coloreadas animadas
+// función de bandas coloreadas
 vec3 movingStripes(vec2 uv, float time) {
     float bands = sin((uv.x + time) * 10.0) * 0.5 + 0.5;
     return vec3(bands, bands * 0.5, 1.0 - bands);
@@ -146,6 +146,7 @@ vec3 shade()
     vec3 Ld = normalize(-dirLightDir);
     float diffD = max(dot(N, Ld), 0.0);
 
+    // Luz difusa
     vec3 Vw = normalize(cameraPos - posWorld);
     vec3 Hd = normalize(Ld + Vw);
     float specD = pow(max(dot(N, Hd), 0.0), alpha);
