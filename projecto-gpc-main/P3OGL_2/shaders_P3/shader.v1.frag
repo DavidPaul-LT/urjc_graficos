@@ -14,6 +14,8 @@ uniform sampler2D colorTex;
 uniform sampler2D emiTex;
 uniform vec3 cameraPos;
 
+uniform float uTime;
+
 // propiedades de la luz direccional: componentes de dirección, difusa y especular
 uniform vec3 dirLightDir;
 uniform vec3 dirLightId;
@@ -24,7 +26,7 @@ vec3 Ka;
 vec3 Kd;
 vec3 Ks;
 vec3 N;
-float alpha = 5000.0; // Afecta a la rugosidad - Controla el brillo de la reflexión especular
+float alpha = 100.0; // A mayor valor, más "rugoso" es el material para reflejar luz
 vec3 Ke;
 
 // Luz focal
@@ -53,19 +55,33 @@ vec3 generatePattern(vec2 uv) {
     return mix(vec3(r, g, b), vec3(stripes), 0.3); //  * 0.5 + 0.5: Transforma el rango de salida de salida -1 en algo que se pueda colorear
 }
 
+vec3 proceduralCircle(vec2 uv) {
+    float d = distance(uv, vec2(0.5));
+    if (d < 0.2)
+        return vec3(1.0);  // blanco dentro del círculo
+    else
+        return vec3(0.0);  // negro fuera
+}
+
+vec3 movingStripes(vec2 uv, float time) {
+    float bands = sin((uv.x + time) * 10.0) * 0.5 + 0.5;
+    return vec3(bands, bands * 0.5, 1.0 - bands);
+}
+
 vec3 shade();
 
 void main()
 {
-    // Cubo 2 usa patrón matemático, otros usan textura
+    // Color por función matemática
+
     if (vCubeId == 2) {
-        Ka = generatePattern(texCoord);
-        Kd = generatePattern(texCoord);
+        Ka = movingStripes(texCoord, uTime);  // ejemplo animado
+        Kd = Ka;
     } else {
-        Ka = texture(colorTex, texCoord).rgb;
-        Kd = texture(colorTex, texCoord).rgb;
+        Ka = proceduralCircle(texCoord);  // otra función por defecto
+        Kd = Ka;
     }
-    
+        
     Ke = texture(emiTex, texCoord).rgb;
     Ks = vec3(1.0);
 

@@ -348,8 +348,11 @@ void renderFunc()
 		}
 		else {
 			glUseProgram(program1.program);
-			// LUZ DIRECCIONAL
-			// pendiente -> Ahora mismo tiene giro, la dejamos así?
+
+			// FUENTE DE LUZ DIRECCIONAL CON TRAYECTORIA CÍCLICA
+			// pendiente -> La linterna de FPS es muy intensa de cerca
+			// cambiar la velocidad de movimiento (que sea "suave"?)
+			
 			float angle = glutGet(GLUT_ELAPSED_TIME) / 428.0f;
 			glm::vec3 dirLightDir = glm::normalize(glm::vec3(sin(angle), -1.0f, cos(angle)));
 			glm::vec3 dirLightId = glm::vec3(1.0f, 0.7f, 0.4f);
