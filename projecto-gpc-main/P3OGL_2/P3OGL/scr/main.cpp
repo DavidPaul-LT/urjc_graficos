@@ -364,20 +364,21 @@ void renderFunc()
 		int cubeId = i + 1;
 
 		if (i == -1) {
-			float splineValue = 1 + sin(angle);
-			float y = 0;
+			glm::vec3 basePos(2.0f, -2.0f, 2.0f); // Centro de la órbita
 
-			localModel = glm::translate(glm::mat4(1.0f), glm::vec3(-6.0f + splineValue, y, 0.0f));
+			float radius = 0.7f;
+			float freq = 2.0f;
+			float verticalAmplitude = 2.0f;
 
+			// Movimiento en órbita circular (plano XZ)
+			float x = (radius) * cos(angle * freq);
+			float z = (radius) * sin(angle * freq);
 
-			if (splineValue <= 1.0f) {
-				y = 1.5f * splineValue - 0.5f * pow(splineValue, 3);
-			}
-			else {
-				float t = splineValue - 1.0f;
-				y = 1 - 1.5f * pow(t, 2) + 0.5f * pow(t, 3);
-			}
-			localModel = glm::translate(localModel, glm::vec3(splineValue - 5.f, y, 0.0f));
+			// Movimiento senoidal en eje Y
+			float y = verticalAmplitude * sin(angle * freq); // doble frecuencia en vertical
+
+			glm::vec3 offset(x, y, z);
+			localModel = glm::translate(glm::mat4(1.0f), basePos + offset);
 		}
 		else if (i == 0) {
 			// cubo rotativo que describe una elipse
