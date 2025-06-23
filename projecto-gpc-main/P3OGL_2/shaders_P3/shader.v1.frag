@@ -14,6 +14,11 @@ uniform sampler2D colorTex;
 uniform sampler2D emiTex;
 uniform vec3 cameraPos;
 
+uniform vec3 dirLightDir;  // Dirección de la luz direccional
+uniform vec3 dirLightId;   // Intensidad difusa de la luz direccional
+uniform vec3 dirLightIs;   // Intensidad especular de la luz direccional
+
+
 // Propiedades del objeto
 vec3 Ka;
 vec3 Kd;
@@ -34,10 +39,6 @@ vec3 Id[2] = vec3[2](vec3(0.8), vec3(0.5));  // Dos fuentes de luz difusa
 vec3 Is[2] = vec3[2](vec3(0.8), vec3(0.5));  // Dos fuentes de luz especular
 vec3 lpos[2] = vec3[2](vec3(2.0, 1.0, 2.0), vec3(-2.0, 1.0, 1.0));   // Posiciones de luces puntuales
 
-// Propiedades de la luz direccional
-vec3 dirLightDir = normalize(vec3(1.0f, 0.0f, 0.0f));  // Dirección de la luz direccional
-vec3 dirLightId = vec3(0.8);  // Intensidad de la luz difusa
-vec3 dirLightIs = vec3(0.8);  // Intensidad de la luz especular 
 
 //Densidad y color de la niebla
 float density = 0.05;
@@ -76,27 +77,19 @@ void main()
 vec3 shade()
 {
     vec3 c = Ia * Ka;
+    N = normalize(norm_world); // Reutilizas N para todo el shading
 
     // Iteramos solo sobre las luces puntuales
     for (int i = 0; i < 2; ++i)
     {
-        N = normalize(norm_world);
-
-        // Las luces puntuales usan pos2 (mundo)
         vec3 fragPos = pos2; 
-
         vec3 L = normalize(lpos[i] - fragPos);
         float distance = length(lpos[i] - fragPos);
-
-
-        float maxDistance = 15.0;
-        float d0 = 1.0;
-        float epsilon = sqrt(0.001);
 
         float diffFactor = max(dot(L, N), 0.0);
         vec3 diffuse = Id[i] * Kd * diffFactor;
 
-        vec3 V = normalize(cameraPos-fragPos);
+        vec3 V = normalize(cameraPos - fragPos);
         vec3 H = normalize(L + V);
         float specFactor = max(dot(N, H), 0.0);
         vec3 specular = Is[i] * Ks * pow(specFactor, alpha);
@@ -104,14 +97,13 @@ vec3 shade()
         c += diffuse + specular;
     }
 
-    // Luz focal (sigue a la cámara, usa pos)
-    N = normalize(norm);
+    // Luz focal
+    N = normalize(norm); // ← normal en coords de cámara
     vec3 fragmentToLight = normalize(spotPos - pos);
 
-    // Función de ventana para atenuación con distancia para la luz focal
     float cutoff = 30.0;
     float penumbra = 20.0;
-    float distanceToFocalLight = length(spotPos - pos);  // Distancia de la luz focal
+    float distanceToFocalLight = length(spotPos - pos);
     float maxDistance = 15.0;
     float d0 = 1.0;
     float epsilon = sqrt(0.001);
@@ -119,28 +111,25 @@ vec3 shade()
     float t = clamp((dot(-fragmentToLight,spotDir)-cos(radians(cutoff)))/(cos(radians(penumbra))-cos(radians(cutoff))),0,1);
     float attenuation = pow(d0 / (distanceToFocalLight + epsilon), 2.0) * f_win * t;
 
-    // Componente difusa
     float diff = max(dot(fragmentToLight, N), 0.0);
     vec3 diffuse = spotId * Kd * diff;
 
-    vec3 V = normalize(cameraPos-pos2); 
+    vec3 V = normalize(cameraPos - pos2); 
     vec3 H = normalize(fragmentToLight + V);
     float specFactor = max(dot(N, H), 0.0);
     vec3 specular = spotIs * Ks * pow(specFactor, alpha);
 
     c += attenuation * (diffuse + specular);
 
-    // Cálculo de la componente difusa de la luz direccional
-    vec3 Nw    = normalize(norm_world);
-    vec3 Ld    = normalize(-dirLightDir);
-    float diffD = max(dot(Nw, Ld), 0.0);
+    // Luz direccional
+    vec3 Ld = normalize(-dirLightDir);
+    float diffD = max(dot(N, Ld), 0.0);
 
-    // Cálculo de la componente componente especular de la luz direccional
-    vec3 Vw    = normalize(cameraPos - pos2);
-    vec3 Hd    = normalize(Ld + Vw);
-    float specD = pow(max(dot(Nw, Hd), 0.0), alpha);
+    vec3 Vw = normalize(cameraPos - pos2);
+    vec3 Hd = normalize(Ld + Vw);
+    float specD = pow(max(dot(N, Hd), 0.0), alpha);
 
-    vec3 diffuseDir  = dirLightId * Kd * diffD;
+    vec3 diffuseDir = dirLightId * Kd * diffD;
     vec3 specularDir = dirLightIs * Ks * specD;
     c += diffuseDir + specularDir;
 
@@ -148,7 +137,6 @@ vec3 shade()
     c += Ke;
 
     // Niebla
-    float p = 1.0/exp(pow(density* length(vec3(0)-pos),2));
-
-    return clamp(c*p + (1-p)*bg, 0.0, 1.0);
+    float p = 1.0 / exp(pow(density * length(vec3(0) - pos), 2));
+    return clamp(c * p + (1 - p) * bg, 0.0, 1.0);
 }
