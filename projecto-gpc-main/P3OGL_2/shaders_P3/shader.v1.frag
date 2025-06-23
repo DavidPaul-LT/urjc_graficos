@@ -68,10 +68,10 @@ void main()
     // Color por función matemática
 
     if (vCubeId == 2) {
-        Ka = movingStripes(texCoord, uTime);  // ejemplo animado
+        Ka = movingStripes(texCoord, uTime);
         Kd = Ka;
     } else {
-        Ka = proceduralCircle(texCoord);  // otra función por defecto
+        Ka = proceduralCircle(texCoord);
         Kd = Ka;
     }
         
