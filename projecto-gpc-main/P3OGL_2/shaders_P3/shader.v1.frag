@@ -14,6 +14,10 @@ uniform sampler2D colorTex;
 uniform sampler2D emiTex;
 uniform vec3 cameraPos;
 
+uniform float uTime;
+
+// propiedades de la luz direccional
+
 uniform vec3 dirLightDir;  // Dirección de la luz direccional
 uniform vec3 dirLightId;   // Intensidad difusa de la luz direccional
 uniform vec3 dirLightIs;   // Intensidad especular de la luz direccional
@@ -24,7 +28,7 @@ vec3 Ka;
 vec3 Kd;
 vec3 Ks;
 vec3 N;
-float alpha = 5000.0; // Afecta a la rugosidad - Controla el brillo de la reflexión especular
+float alpha = 100.0; // A mayor valor, más "rugoso" es el material para reflejar luz
 vec3 Ke;
 
 // Luz focal
@@ -44,34 +48,49 @@ vec3 lpos[2] = vec3[2](vec3(2.0, 1.0, 2.0), vec3(-2.0, 1.0, 1.0));   // Posicion
 float density = 0.05;
 vec3 bg = vec3(0.2,0.2,0.2);
 
-vec3 generatePattern(vec2 uv) {
-    // Patrón más llamativo para el cubo central
-    float stripes = sin(uv.x * 20.0) * sin(uv.y * 20.0); // Aumenta la frecuencia del patrón (más detalles)
-    float r = sin(uv.x * 5.0 + uv.y * 3.0) * 0.5 + 0.5; // Franjas diagonales rojas
-    float g = cos(uv.y * 7.0 - uv.x * 2.0) * 0.5 + 0.5;  // Ondas verdes
-    float b = (sin(uv.x * 3.0) * cos(uv.y * 5.0)) * 0.5 + 0.5; // Patrón modular azul
-    return mix(vec3(r, g, b), vec3(stripes), 0.3); //  * 0.5 + 0.5: Transforma el rango de salida de salida -1 en algo que se pueda colorear
+// función de círculo blanco en fondo negro
+vec3 proceduralCircle(vec2 uv) {
+    float d = distance(uv, vec2(0.5));
+    if (d < 0.2)
+        return vec3(1.0);  // blanco dentro del círculo
+    else
+        return vec3(0.0);  // negro fuera
+}
+
+// función de bandas coloreadas animadas
+vec3 movingStripes(vec2 uv, float time) {
+    float bands = sin((uv.x + time) * 10.0) * 0.5 + 0.5;
+    return vec3(bands, bands * 0.5, 1.0 - bands);
 }
 
 vec3 shade();
 
 void main()
 {
-    // Cubo 2 usa patrón matemático, otros usan textura
+    // Color por función matemática
+
     if (vCubeId == 2) {
-        Ka = generatePattern(texCoord);
-        Kd = generatePattern(texCoord);
+        Ka = movingStripes(texCoord, uTime);
+        Kd = Ka;
     } else {
-        Ka = texture(colorTex, texCoord).rgb;
-        Kd = texture(colorTex, texCoord).rgb;
+        Ka = proceduralCircle(texCoord);
+        Kd = Ka;
     }
-    
+        
     Ke = texture(emiTex, texCoord).rgb;
     Ks = vec3(1.0);
 
     N = normalize(norm);
 
-    outColor = vec4(shade(), 1.0);
+    // --- NIEBLA EXPONENCIAL CUADRÁTICA ---
+    // pendiente -> cambiar color de niebla?
+    float fogDensity = 0.045;
+    float fogDistance = length(cameraPos - pos);
+    float fogFactor = exp(-pow(fogDensity * fogDistance, 2.0));
+    fogFactor = clamp(fogFactor, 0.0, 1.0);
+    vec3 fogColor = vec3(0.7, 0.7, 0.7); // Gris claro
+    vec3 finalColor = mix(fogColor, shade(), fogFactor);
+    outColor = vec4(finalColor, 1.0);
 }
 
 vec3 shade()

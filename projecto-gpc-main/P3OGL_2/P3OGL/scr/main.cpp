@@ -11,6 +11,8 @@
 #include <iostream>
 #include "MeshLoader.hpp"
 
+#include <glm/gtc/type_ptr.hpp>
+
 // Variables movimiento ratón
 float yaw = -90.0f;
 float pitch = 0.0f;
@@ -350,6 +352,8 @@ void renderFunc()
 		glm::mat4 localModel = glm::mat4(1.0f);
 		int cubeId = i + 1;
 
+		// pendiente -> 
+
 		if (i == -1) {
 			float splineValue = 1 + sin(angle);
 			float y = 0;
@@ -417,6 +421,20 @@ void renderFunc()
 		}
 		else {
 			glUseProgram(program1.program);
+
+			// FUENTE DE LUZ DIRECCIONAL CON TRAYECTORIA CÍCLICA
+			// pendiente -> La linterna de FPS es muy intensa de cerca
+			// cambiar la velocidad de movimiento (que sea "suave"?)
+			
+			float angle = glutGet(GLUT_ELAPSED_TIME) / 428.0f;
+			glm::vec3 dirLightDir = glm::normalize(glm::vec3(sin(angle), -1.0f, cos(angle)));
+			glm::vec3 dirLightId = glm::vec3(1.0f, 0.7f, 0.4f);
+			glm::vec3 dirLightIs = glm::vec3(1.0f, 0.6f, 0.2f);
+
+			glUseProgram(program1.program);
+			glUniform3fv(glGetUniformLocation(program1.program, "dirLightDir"), 1, glm::value_ptr(dirLightDir));
+			glUniform3fv(glGetUniformLocation(program1.program, "dirLightId"), 1, glm::value_ptr(dirLightId));
+			glUniform3fv(glGetUniformLocation(program1.program, "dirLightIs"), 1, glm::value_ptr(dirLightIs));
 		}
 
 		int uCubeId = glGetUniformLocation((cubeId == 3 ? program2.program : program1.program), "cubeId");
